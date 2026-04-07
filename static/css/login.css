@@ -1,0 +1,178 @@
+/* =========================
+   Login Page Styles
+========================= */
+
+.auth-card {
+  max-width: 420px;
+  margin: 4rem auto;
+  padding: 2.3rem; /* diketatkan sikit */
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================
+   BRANDING
+========================= */
+.web-guardian-brand {
+  color: #0d6efd;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.1rem; /* RAPAT */
+  text-align: center;
+}
+
+.auth-card .department {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0.6rem; /* RAPAT KE LOGIN */
+  font-style: italic;
+}
+
+/* Divider */
+.auth-card hr {
+  opacity: 0.2;
+  margin: 0.6rem -2rem 0.8rem -2rem; /* RAPAT */
+  border-top: 1px solid #dee2e6;
+}
+
+/* =========================
+   LOGIN TITLE
+========================= */
+.auth-card h2 {
+  text-align: center;
+  margin-bottom: 1.2rem; /* DIKURANGKAN */
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+/* =========================
+   LABELS
+========================= */
+.auth-card label {
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  display: block;
+  color: #495057;
+}
+
+/* =========================
+   INPUT ICON SYSTEM
+========================= */
+.input-icon-wrapper {
+  position: relative;
+  margin-bottom: 1.3rem; /* diketatkan */
+}
+
+.input-icon-left {
+  position: absolute;
+  top: 70%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+  font-size: 1.1rem;
+}
+
+.with-left-icon {
+  padding-left: 2.5rem;
+  height: 45px;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+}
+
+.with-both-icons {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  height: 45px;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+}
+
+/* =========================
+   PASSWORD TOGGLE
+========================= */
+.password-toggle {
+  position: absolute;
+  top: 70%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.password-toggle:hover {
+  color: #0d6efd;
+}
+
+/* =========================
+   FOCUS
+========================= */
+.auth-card .form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+}
+
+/* =========================
+   BUTTON
+========================= */
+.auth-card .btn {
+  margin-top: 0.4rem; /* rapat */
+  padding: 0.65rem;
+  font-weight: 500;
+  font-size: 1rem;
+  height: 45px;
+  background-color: #0d6efd;
+  border: none;
+  transition: all 0.2s;
+}
+
+.auth-card .btn:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-1px);
+}
+
+/* =========================
+   MUTED TEXT
+========================= */
+.auth-card .muted {
+  text-align: center;
+  font-size: 0.85rem;
+  margin-top: 1.2rem;
+  color: #6c757d;
+}
+
+.auth-card .muted a {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-card .muted a:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 576px) {
+  .auth-card {
+    margin: 2rem 1rem;
+    padding: 2rem;
+  }
+
+  .web-guardian-brand {
+    font-size: 1.8rem;
+  }
+
+  .auth-card hr {
+    margin: 0.6rem -1.5rem 0.8rem -1.5rem;
+  }
+}

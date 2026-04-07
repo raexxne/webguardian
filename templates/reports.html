@@ -1,0 +1,581 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reports.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container-fluid mt-2 reports-container">
+
+  <div class="dashboard-header mb-3">
+    <h3 class="page-title">Security Scan Reports</h3>
+    <p class="text-muted small">Website vulnerability scan results</p>
+  </div>
+
+  {% if scans %}
+
+  {% set high_total = namespace(count=0) %}
+  {% set medium_total = namespace(count=0) %}
+  {% set low_total = namespace(count=0) %}
+
+  {% for scan in scans %}
+    {% for vuln in scan.parsed_result %}
+      {% if vuln.risk == "High" %}
+        {% set high_total.count = high_total.count + 1 %}
+      {% elif vuln.risk == "Medium" %}
+        {% set medium_total.count = medium_total.count + 1 %}
+      {% elif vuln.risk == "Low" %}
+        {% set low_total.count = low_total.count + 1 %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-4 col-md-4">
+      <div class="risk-card high-risk text-center">
+        <h3>{{ high_total.count }}</h3>
+        <p>Total High Risk</p>
+      </div>
+    </div>
+
+    <div class="col-lg-4 col-md-4">
+      <div class="risk-card medium-risk text-center">
+        <h3>{{ medium_total.count }}</h3>
+        <p>Total Medium Risk</p>
+      </div>
+    </div>
+
+    <div class="col-lg-4 col-md-4">
+      <div class="risk-card low-risk text-center">
+        <h3>{{ low_total.count }}</h3>
+        <p>Total Low Risk</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5><i class="bi bi-shield-exclamation"></i> Security Overview</h5>
+          <p class="mb-0 small">
+            This report displays vulnerabilities discovered during scanning.
+            High risk vulnerabilities should be fixed immediately because they may allow attackers
+            to compromise the system or expose sensitive information.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5><i class="bi bi-info-circle"></i> Risk Level Guide</h5>
+          <ul class="list-unstyled mt-2 mb-0 small">
+            <li>🔴 <strong>High Risk</strong> – Immediate fix required</li>
+            <li>🟠 <strong>Medium Risk</strong> – Should be fixed soon</li>
+            <li>🟢 <strong>Low Risk</strong> – Minor issue</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="table reports-table align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Target Website</th>
+          <th>Total Issues</th>
+          <th>Security Score</th>
+          <th>Date</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for scan in scans %}
+
+        {% set high = namespace(count=0) %}
+        {% set medium = namespace(count=0) %}
+        {% set low = namespace(count=0) %}
+
+        {% for vuln in scan.parsed_result %}
+          {% if vuln.risk == "High" %}
+            {% set high.count = high.count + 1 %}
+          {% elif vuln.risk == "Medium" %}
+            {% set medium.count = medium.count + 1 %}
+          {% elif vuln.risk == "Low" %}
+            {% set low.count = low.count + 1 %}
+          {% endif %}
+        {% endfor %}
+
+        {% set score = 100 - (high.count*20) - (medium.count*10) - (low.count*5) %}
+        {% if score < 0 %}
+          {% set score = 0 %}
+        {% endif %}
+
+        <tr>
+          <td class="fw-semibold">{{ scan.target_url }}</td>
+          <td>{{ scan.parsed_result | length }}</td>
+
+          <td>
+            <div class="score-container">
+              <div class="progress">
+                <div class="progress-bar
+                  {% if score >= 80 %}bg-success
+                  {% elif score >= 50 %}bg-warning
+                  {% else %}bg-danger
+                  {% endif %}"
+                  role="progressbar"
+                  style="width: {{ score }}%;"
+                  aria-valuenow="{{ score }}"
+                  aria-valuemin="0"
+                  aria-valuemax="100">
+                </div>
+              </div>
+
+              <div class="score-value
+                {% if score >= 80 %}text-success
+                {% elif score >= 50 %}text-warning
+                {% else %}text-danger
+                {% endif %}">
+                {{ score }} / 100
+              </div>
+            </div>
+          </td>
+
+          <td>{{ scan.created_at.strftime('%d %b %Y') }}</td>
+
+          <td>
+            <div class="action-buttons-group">
+              <button class="btn btn-primary btn-sm view-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#viewModal"
+                data-id="{{ scan.id }}"
+                data-target="{{ scan.target_url }}"
+                data-date="{{ scan.created_at.strftime('%d %b %Y') }}"
+                data-user="{{ scan.name }}">
+                View
+              </button>
+
+              <a href="/scan/pdf/{{ scan.id }}" class="btn btn-success btn-sm">
+                PDF
+              </a>
+
+              <button class="btn btn-danger btn-sm delete-btn"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                data-id="{{ scan.id }}">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+    <div class="no-reports-message">
+      <div class="no-reports-icon">
+        <i class="bi bi-shield-check"></i>
+      </div>
+
+      <div class="no-reports-content">
+        <h3>No Security Reports Found</h3>
+        <p>No scan results available.</p>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header modal-sticky-header">
+        <h5 class="modal-title">Scan Report Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="modal-info">
+          <p><strong>Target:</strong> <span id="modal-target"></span></p>
+          <p><strong>Date:</strong> <span id="modal-date"></span></p>
+          <p><strong>Scanned By:</strong> <span id="modal-user"></span></p>
+        </div>
+
+        <hr>
+
+        <div id="modal-result">
+          <p class="text-muted">Loading vulnerabilities...</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Delete Report</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <p>Are you sure you want to delete this report?</p>
+        <a id="confirmDeleteBtn" class="btn btn-danger" data-csrf-post="true">Yes, Delete</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = (text ?? "");
+    return div.innerHTML;
+  }
+
+  function badgeClass(risk) {
+    if (risk === "High") return "danger";
+    if (risk === "Medium") return "warning";
+    return "success";
+  }
+
+  function fallbackWhatThisMeans(name, risk, description) {
+    name = (name || "").toLowerCase();
+    description = (description || "").toLowerCase();
+
+    if (name.includes("personally identifiable information") || name.includes("pii")) {
+      return "Sensitive personal information may be visible in the website response. This means private user data could be exposed to unauthorized people.";
+    }
+
+    if (name.includes("sql injection") || name.includes("sql")) {
+      return "The website may be accepting unsafe input. An attacker could try to read, change, or delete data in the database.";
+    }
+
+    if (name.includes("cross site scripting") || name.includes("xss")) {
+      return "The website may allow malicious script code to run in a visitor's browser. This can affect users who open the page.";
+    }
+
+    if (name.includes("csrf")) {
+      return "The website may not be checking properly whether a request really comes from the correct user action.";
+    }
+
+    if (name.includes("authentication") || name.includes("login") || name.includes("password")) {
+      return "The login or account protection may be weak, which can make unauthorized access easier.";
+    }
+
+    if (name.includes("cookie")) {
+      return "The website cookies may not be protected strongly enough. This can make session information easier to steal or misuse.";
+    }
+
+    if (name.includes("information disclosure") || name.includes("stack trace") || description.includes("sensitive data")) {
+      return "The website may be revealing sensitive or technical information that should normally stay hidden.";
+    }
+
+    if (name.includes("directory browsing")) {
+      return "The server may be showing a list of files or folders that should not be visible publicly.";
+    }
+
+    if (name.includes("hsts") || name.includes("strict-transport-security")) {
+      return "The website may not be forcing secure HTTPS connections strongly enough.";
+    }
+
+    if (risk === "High") {
+      return "The scan found a serious security weakness. If it is not fixed, attackers may be able to misuse the website or its data.";
+    }
+
+    if (risk === "Medium") {
+      return "The scan found a security weakness that may increase the risk of attack if it is not fixed.";
+    }
+
+    return "The scan found a security weakness on this website. It should still be reviewed and improved.";
+  }
+
+  function fallbackBusinessImpact(name, risk) {
+    name = (name || "").toLowerCase();
+
+    if (name.includes("personally identifiable information") || name.includes("pii")) {
+      return "This may cause privacy breach, legal or compliance issues, and loss of trust from users or clients.";
+    }
+
+    if (name.includes("sql injection") || name.includes("sql")) {
+      return "This may lead to stolen records, changed data, system damage, or full database compromise.";
+    }
+
+    if (name.includes("cross site scripting") || name.includes("xss")) {
+      return "This may lead to stolen session data, fake page content, or misuse of user accounts.";
+    }
+
+    if (name.includes("csrf")) {
+      return "Attackers may trick logged-in users into performing actions without their permission.";
+    }
+
+    if (name.includes("authentication") || name.includes("login") || name.includes("password")) {
+      return "This may allow attackers to access user accounts, admin functions, or sensitive information.";
+    }
+
+    if (risk === "High") {
+      return "This issue may cause serious problems such as data breach, account compromise, or service interruption.";
+    }
+
+    if (risk === "Medium") {
+      return "This issue may weaken website security and could become more dangerous if combined with other weaknesses.";
+    }
+
+    return "This issue is not critical, but it still shows that the website security can be improved.";
+  }
+
+  function fallbackRecommendedAction(name, risk) {
+    name = (name || "").toLowerCase();
+
+    if (name.includes("personally identifiable information") || name.includes("pii")) {
+      return "Remove or protect sensitive personal information from the response, limit access properly, and re-scan after fixing.";
+    }
+
+    if (name.includes("sql injection") || name.includes("sql")) {
+      return "Validate all user input, use parameterized queries, fix the affected function, and re-scan after patching.";
+    }
+
+    if (name.includes("cross site scripting") || name.includes("xss")) {
+      return "Sanitize and encode input/output properly, fix the affected page, and test again after the update.";
+    }
+
+    if (name.includes("csrf")) {
+      return "Use CSRF protection tokens on sensitive forms and requests, then re-test the affected functions.";
+    }
+
+    if (name.includes("cookie")) {
+      return "Set proper cookie protection such as HttpOnly, Secure, and SameSite where needed, then re-scan.";
+    }
+
+    if (name.includes("authentication") || name.includes("login") || name.includes("password")) {
+      return "Strengthen authentication controls, review password handling, and test the login process again.";
+    }
+
+    if (name.includes("information disclosure") || name.includes("stack trace")) {
+      return "Hide unnecessary technical details from responses and error messages, then run another scan.";
+    }
+
+    if (risk === "High") {
+      return "Send this issue to the IT team immediately, apply the fix as soon as possible, and re-scan after the patch is completed.";
+    }
+
+    if (risk === "Medium") {
+      return "Fix this issue in the next maintenance cycle and re-scan to confirm the improvement.";
+    }
+
+    return "Review and improve this issue when possible, then run another scan to verify the fix.";
+  }
+
+  const CWE_TITLES = {
+    "79": "Cross-site Scripting (XSS)",
+    "89": "SQL Injection",
+    "352": "Cross-Site Request Forgery (CSRF)",
+    "200": "Exposure of Sensitive Information to an Unauthorized Actor",
+    "284": "Improper Access Control",
+    "287": "Improper Authentication",
+    "319": "Cleartext Transmission of Sensitive Information",
+    "522": "Insufficiently Protected Credentials",
+    "525": "Use of Web Browser Cache Containing Sensitive Information",
+    "601": "URL Redirection to Untrusted Site",
+    "798": "Use of Hard-coded Credentials"
+  };
+
+  function parseCweId(cweVal) {
+    if (!cweVal) return null;
+    const m = String(cweVal).match(/(\d{1,5})/);
+    return m ? m[1] : null;
+  }
+
+  function buildCweInfo(cweVal) {
+    const id = parseCweId(cweVal);
+    if (!id) {
+      return {
+        label: "Not provided by scanner",
+        link: null
+      };
+    }
+
+    const title = CWE_TITLES[id] || "";
+    const label = title ? `CWE-${id} — ${title}` : `CWE-${id}`;
+    const link = `https://cwe.mitre.org/data/definitions/${id}.html`;
+
+    return { label, link };
+  }
+
+  function buildEvidence(v) {
+    const evidence = Array.isArray(v.evidence_details) ? v.evidence_details : [];
+
+    if (!evidence.length) {
+      return `<div class="tech-item">
+                <div class="tech-label"><i class="bi bi-search"></i> Evidence</div>
+                <div>No detailed evidence provided by scanner.</div>
+              </div>`;
+    }
+
+    const items = evidence.map(item => {
+      const label = escapeHtml(item.label || "Evidence");
+      const value = escapeHtml(item.value || "-");
+
+      return `
+        <li>
+          <strong>${label}:</strong> ${value}
+        </li>
+      `;
+    }).join("");
+
+    return `<div class="tech-item">
+              <div class="tech-label"><i class="bi bi-search"></i> Evidence</div>
+              <ul class="evidence-list">${items}</ul>
+            </div>`;
+  }
+
+  function renderCombined(v) {
+    const risk = v.risk || "Low";
+    const cls = badgeClass(risk);
+
+    const cweRaw = v.cwe || v.cweId || v.cweid || null;
+    const cweInfo = buildCweInfo(cweRaw);
+
+    const whatThisMeans = v.what_this_means || fallbackWhatThisMeans(v.name, risk, v.description);
+    const businessImpact = v.business_impact || fallbackBusinessImpact(v.name, risk);
+    const recommendedAction = v.recommended_action || fallbackRecommendedAction(v.name, risk);
+
+    return `
+      <div class="vuln-box">
+        <div class="vuln-title-row">
+          <div class="vuln-title">
+            <i class="bi bi-bug-fill"></i>
+            <span>${escapeHtml(v.name || "Unnamed Vulnerability")}</span>
+          </div>
+        </div>
+
+        <div class="vuln-subrow">
+          <span class="label-badge ${cls}">
+            <i class="bi bi-exclamation-triangle-fill"></i> Risk: ${escapeHtml(risk)}
+          </span>
+        </div>
+
+        <div class="vuln-grid">
+          <div class="vuln-block">
+            <div class="vuln-block-title"><i class="bi bi-lightbulb"></i> What This Means</div>
+            <div class="vuln-block-text">${escapeHtml(whatThisMeans)}</div>
+          </div>
+
+          <div class="vuln-block">
+            <div class="vuln-block-title"><i class="bi bi-briefcase"></i> Business Impact</div>
+            <div class="vuln-block-text">${escapeHtml(businessImpact)}</div>
+          </div>
+
+          <div class="vuln-block vuln-block-full">
+            <div class="vuln-block-title"><i class="bi bi-tools"></i> Recommended Action</div>
+            <div class="vuln-block-text">${escapeHtml(recommendedAction)}</div>
+          </div>
+        </div>
+
+        <div class="tech-panel">
+          <div class="tech-panel-title">
+            <i class="bi bi-code-slash"></i> Technical Details (IT)
+          </div>
+
+          <div class="tech-grid">
+            <div class="tech-item tech-cwe">
+              <div class="tech-label"><i class="bi bi-diagram-3"></i> CWE (Weakness Category)</div>
+
+              <div class="tech-cwe-main">
+                <span class="tech-cwe-label">${escapeHtml(cweInfo.label)}</span>
+                ${
+                  cweInfo.link
+                  ? `<a class="tech-cwe-link" href="${escapeHtml(cweInfo.link)}" target="_blank" rel="noopener noreferrer">
+                       MITRE reference <i class="bi bi-box-arrow-up-right"></i>
+                     </a>`
+                  : ``
+                }
+              </div>
+
+              <div class="tech-cwe-help">
+                CWE (Common Weakness Enumeration) is a standardized weakness category list maintained by MITRE.
+                It helps classify the type of weakness so developers can find consistent guidance.
+              </div>
+            </div>
+
+            <div class="tech-item">
+              <div class="tech-label"><i class="bi bi-card-text"></i> Technical Description</div>
+              <div>${escapeHtml(v.description || "No technical description available.")}</div>
+            </div>
+
+            <div class="tech-item">
+              <div class="tech-label"><i class="bi bi-wrench-adjustable"></i> Solution</div>
+              <div>${escapeHtml(v.solution || "No solution provided.")}</div>
+            </div>
+
+            ${buildEvidence(v)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      const scanId = this.dataset.id;
+
+      document.getElementById("modal-target").textContent = this.dataset.target;
+      document.getElementById("modal-date").textContent = this.dataset.date;
+      document.getElementById("modal-user").textContent = this.dataset.user;
+
+      const container = document.getElementById("modal-result");
+      container.innerHTML = `<p class="text-muted">Loading vulnerabilities...</p>`;
+
+      fetch(`/scan/details/${scanId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!Array.isArray(data) || !data.length) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>No vulnerabilities found for this scan.</span>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = data.map(renderCombined).join("");
+        })
+        .catch(() => {
+          container.innerHTML = `
+            <div class="empty-state danger">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span>Unable to load vulnerabilities. Please try again.</span>
+            </div>
+          `;
+        });
+    });
+  });
+
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      document.getElementById("confirmDeleteBtn").href = `/reports/delete/${this.dataset.id}`;
+    });
+  });
+
+});
+</script>
+
+{% endblock %}

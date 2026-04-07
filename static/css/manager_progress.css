@@ -1,0 +1,151 @@
+/* manager_progress.css */
+.progress-wrapper {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.progress-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.progress-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    padding: 15px 20px;
+}
+
+.table tbody td {
+    padding: 15px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.target-url {
+    word-break: break-word;
+    display: inline-block;
+    max-width: 300px;
+}
+
+/* Badge styles */
+.badge {
+    padding: 0.5em 0.8em;
+    font-weight: 500;
+    font-size: 0.85em;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+/* Button styles */
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .progress-wrapper {
+        padding: 10px;
+    }
+    
+    .progress-header {
+        padding: 15px;
+        font-size: 1.25rem;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 10px 15px;
+    }
+    
+    .target-url {
+        max-width: 200px;
+    }
+}
+
+/* Empty state styling */
+.text-muted .display-6 {
+    opacity: 0.3;
+}
+
+/* Modal styles (if needed later) */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Animation for status changes */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.table tbody tr {
+    animation: fadeIn 0.3s ease-in;
+}

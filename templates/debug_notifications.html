@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Debug Notifications</h2>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Current User</h4>
+        </div>
+        <div class="card-body">
+            <pre>{{ user }}</pre>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Notifications for Current User ({{ notifications|length }})</h4>
+        </div>
+        <div class="card-body">
+            {% if notifications %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Message</th>
+                        <th>Read</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in notifications %}
+                    <tr>
+                        <td>{{ n.id }}</td>
+                        <td>{{ n.message }}</td>
+                        <td>{{ 'Yes' if n.is_read else 'No' }}</td>
+                        <td>{{ n.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No notifications found</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h4>All Notifications in System ({{ all_notifications|length }})</h4>
+        </div>
+        <div class="card-body">
+            {% if all_notifications %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Message</th>
+                        <th>Read</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in all_notifications %}
+                    <tr>
+                        <td>{{ n.id }}</td>
+                        <td>{{ n.user_name }} ({{ n.user_id }})</td>
+                        <td>{{ n.message }}</td>
+                        <td>{{ 'Yes' if n.is_read else 'No' }}</td>
+                        <td>{{ n.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No notifications in system</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{{ url_for('staff_dashboard') if session.role == 'staff' else url_for('manager_dashboard') }}" 
+           class="btn btn-primary">
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

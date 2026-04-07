@@ -1,0 +1,286 @@
+/* =========================
+   Full Width + 120% Scale
+========================= */
+
+.dashboard-wrapper {
+  width: 100%;
+  max-width: 100%;
+  padding: 2rem 2rem 2.5rem;
+}
+
+/* =========================
+   Dashboard Header
+========================= */
+
+.dashboard-header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dashboard-header h2 {
+  font-weight: 700;
+  font-size: 2rem;
+  color: #0d6efd;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.dashboard-header h2 i {
+  font-size: 2rem;
+}
+
+.dashboard-header p {
+  margin-top: 0.4rem;
+  margin-bottom: 0;
+  font-size: 1.08rem;
+  color: #6c757d;
+}
+
+/* =========================
+   Dashboard Cards
+========================= */
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 1rem;
+  padding: 2.1rem;
+  min-height: 100%;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+}
+
+/* =========================
+   Card Icon
+========================= */
+
+.card-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  color: #fff;
+  font-size: 1.9rem;
+}
+
+/* Orange icon background */
+.bg-orange {
+  background-color: #fd7e14;
+}
+
+/* =========================
+   Card Content
+========================= */
+
+.dashboard-card h5 {
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 0.7rem;
+}
+
+.dashboard-card p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #6c757d;
+  margin-bottom: 1.4rem;
+}
+
+.assigned-by {
+  font-size: 0.95rem;
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.dashboard-card .btn {
+  font-weight: 600;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-orange {
+  background-color: #fd7e14;
+  border-color: #fd7e14;
+  color: #fff;
+}
+
+.btn-orange:hover {
+  background-color: #e96b0c;
+  border-color: #e96b0c;
+  color: #fff;
+}
+
+.send-pdf-btn,
+.waiting-btn {
+  min-height: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* =========================
+   Copy URL Button
+========================= */
+
+.task-url-copy-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #0d6efd;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: underline;
+  cursor: pointer;
+  word-break: break-all;
+  text-align: left;
+}
+
+.task-url-copy-btn:hover {
+  color: #0a58ca;
+}
+
+.task-url-copy-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* =========================
+   Shared Notification Button
+========================= */
+
+.shared-notification-btn {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(13, 110, 253, 0.22) !important;
+  color: #0d6efd !important;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.12);
+  transition: all 0.2s ease;
+}
+
+.shared-notification-btn:hover {
+  background: #ffffff !important;
+  color: #0d6efd !important;
+  border-color: rgba(13, 110, 253, 0.35) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(13, 110, 253, 0.18);
+}
+
+.shared-notification-btn:active,
+.shared-notification-btn:focus,
+.shared-notification-btn:focus-visible,
+.shared-notification-btn.show,
+.shared-notification-btn[aria-expanded="true"] {
+  background: #ffffff !important;
+  color: #0d6efd !important;
+  border-color: rgba(13, 110, 253, 0.35) !important;
+  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.16) !important;
+  outline: none !important;
+  transform: none !important;
+}
+
+.shared-notification-btn::after {
+  display: none !important;
+}
+
+/* Notification Badge */
+.shared-notification-btn + .badge,
+.shared-notification-btn .badge,
+.badge.bg-danger {
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 22px;
+  height: 22px;
+  line-height: 1.2;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 992px) {
+  .dashboard-wrapper {
+    padding: 1.5rem;
+  }
+
+  .dashboard-header {
+    padding: 1.25rem 1.35rem;
+  }
+
+  .dashboard-header h2 {
+    font-size: 1.7rem;
+  }
+
+  .dashboard-card {
+    padding: 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    padding: 1.1rem 1rem;
+  }
+
+  .dashboard-header h2 {
+    font-size: 1.45rem;
+  }
+
+  .dashboard-header h2 i {
+    font-size: 1.45rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.98rem;
+  }
+
+  .dashboard-card {
+    padding: 1.5rem;
+  }
+
+  .card-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 1.7rem;
+  }
+
+  .dashboard-card h5 {
+    font-size: 1.15rem;
+  }
+
+  .dashboard-card p,
+  .task-url-copy-btn {
+    font-size: 0.95rem;
+  }
+}

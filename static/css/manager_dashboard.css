@@ -1,0 +1,667 @@
+/* manager_dashboard.css */
+
+/* Main Dashboard Container */
+.manager-dashboard {
+    padding: 2.6rem 2.2rem;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 2.4rem;
+    border-radius: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    margin-bottom: 2.2rem;
+}
+
+.dashboard-header h2 {
+    font-size: 2.65rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+
+.dashboard-header h2 i {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.65rem;
+    border-radius: 14px;
+}
+
+.dashboard-header p {
+    font-size: 1.15rem;
+    opacity: 0.92;
+    margin: 0;
+}
+
+/* Staff Filter Dropdown */
+.dashboard-header form {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 0.85rem 1.3rem;
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-header form label {
+    color: white !important;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    font-size: 0.95rem;
+}
+
+.dashboard-header form select {
+    background-color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.65rem 1.4rem;
+    font-weight: 500;
+    font-size: 0.98rem;
+    color: #333;
+    cursor: pointer;
+    min-height: 46px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dashboard-header form select:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-header form select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* Risk Cards */
+.risk-card {
+    padding: 2.4rem 1.8rem;
+    border-radius: 26px;
+    background: white;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+    min-height: 210px;
+}
+
+.risk-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.risk-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.risk-card h2 {
+    font-size: 4.2rem;
+    font-weight: 800;
+    margin-bottom: 0.7rem;
+    line-height: 1;
+}
+
+.risk-card p {
+    font-size: 1.08rem;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
+
+.high-risk {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+    color: #dc3545;
+    border-bottom: 5px solid #dc3545;
+}
+
+.medium-risk {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+    color: #856404;
+    border-bottom: 5px solid #ffc107;
+}
+
+.low-risk {
+    background: linear-gradient(135deg, #f0fff4 0%, #d4edda 100%);
+    color: #155724;
+    border-bottom: 5px solid #28a745;
+}
+
+/* Analytics Card */
+.risk-analytics .card {
+    border-radius: 26px;
+    overflow: hidden;
+    background: white;
+    margin: 2.2rem 0;
+}
+
+.risk-analytics .card .p-4 {
+    padding: 2.3rem !important;
+}
+
+.risk-analytics .card h5 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.risk-analytics .card small {
+    font-size: 0.95rem;
+}
+
+.risk-analytics .badge {
+    font-size: 1rem;
+    padding: 0.9rem 1.6rem;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.risk-analytics hr {
+    margin: 1.7rem 0;
+    border-color: #e2e8f0;
+}
+
+/* Chart Container */
+.risk-analytics canvas {
+    max-height: 320px;
+    width: 100% !important;
+    margin: 1rem 0;
+}
+
+/* Quick Actions Section */
+.quick-actions-box {
+    background: white;
+    border-radius: 26px;
+    padding: 3rem;
+    margin-top: 2.2rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.quick-actions-box h5 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.55rem;
+}
+
+.quick-actions-desc {
+    color: #718096;
+    font-size: 1.08rem;
+    margin-bottom: 2.2rem;
+}
+
+/* Quick Action Cards */
+.quick-action-card {
+    display: flex;
+    align-items: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 22px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    height: 100%;
+    min-height: 150px;
+}
+
+.quick-action-card:hover {
+    transform: translateX(8px);
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+    text-decoration: none;
+}
+
+.qa-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.4rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.quick-action-card:hover .qa-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.qa-icon.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.qa-icon.bg-secondary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+}
+
+.qa-icon i {
+    font-size: 2rem;
+    color: white;
+}
+
+.qa-content h6 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.45rem;
+    color: #2d3748;
+}
+
+.qa-content p {
+    font-size: 1rem;
+    color: #718096;
+    margin: 0;
+    line-height: 1.45;
+}
+
+/* Alert Box */
+.alert-info {
+    background: linear-gradient(135deg, #e6f3ff 0%, #d4edda 100%);
+    border: none;
+    border-radius: 16px;
+    padding: 1.6rem;
+    color: #0c5460;
+    font-weight: 500;
+    text-align: center;
+    margin: 1rem 0;
+    border-left: 5px solid #17a2b8;
+    font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .manager-dashboard {
+        padding: 1.6rem 1.3rem;
+    }
+
+    .dashboard-header h2 {
+        font-size: 2.2rem;
+    }
+
+    .risk-card h2 {
+        font-size: 3.4rem;
+    }
+
+    .quick-actions-box {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .manager-dashboard {
+        padding: 1rem;
+    }
+    
+    .dashboard-header {
+        padding: 1.3rem;
+    }
+    
+    .dashboard-header h2 {
+        font-size: 1.9rem;
+    }
+
+    .dashboard-header p {
+        font-size: 0.95rem;
+    }
+    
+    .risk-card {
+        padding: 1.5rem;
+        min-height: auto;
+    }
+    
+    .risk-card h2 {
+        font-size: 2.7rem;
+    }
+
+    .risk-card p {
+        font-size: 0.92rem;
+    }
+
+    .risk-analytics .card .p-4 {
+        padding: 1.4rem !important;
+    }
+
+    .risk-analytics .card h5 {
+        font-size: 1.3rem;
+    }
+
+    .quick-actions-box {
+        padding: 1.5rem;
+    }
+    
+    .quick-action-card {
+        padding: 1.3rem;
+        min-height: auto;
+    }
+    
+    .qa-icon {
+        width: 54px;
+        height: 54px;
+    }
+    
+    .qa-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .qa-content h6 {
+        font-size: 1.05rem;
+    }
+    
+    .qa-content p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header {
+        text-align: center;
+    }
+    
+    .dashboard-header form {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        border-radius: 20px;
+    }
+
+    .dashboard-header form select {
+        width: 100%;
+        min-width: 100% !important;
+    }
+    
+    .risk-analytics .badge {
+        margin-top: 0.5rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .quick-action-card {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+}
+
+/* Loading Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.risk-card, .quick-action-card, .risk-analytics .card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.risk-card:nth-child(1) { animation-delay: 0.1s; }
+.risk-card:nth-child(2) { animation-delay: 0.2s; }
+.risk-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* Custom Scrollbar */
+.manager-dashboard::-webkit-scrollbar {
+    width: 8px;
+}
+
+.manager-dashboard::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.manager-dashboard::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+.manager-dashboard::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Additional Polish */
+.text-muted {
+    color: #718096 !important;
+}
+
+.border-0 {
+    border: none !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+}
+
+/* Hover Effects for Interactive Elements */
+.badge {
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+}
+
+/* Chart.js Responsiveness */
+@media (max-width: 480px) {
+    .risk-analytics canvas {
+        max-height: 200px;
+    }
+}
+
+/* Focus States for Accessibility */
+select:focus-visible,
+.quick-action-card:focus-visible {
+    outline: 3px solid #667eea;
+    outline-offset: 3px;
+}
+
+/* =========================
+   Shared Notification Button
+========================= */
+.shared-notification-btn {
+    width: 54px;
+    height: 54px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(13, 110, 253, 0.22) !important;
+    color: #0d6efd !important;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.12);
+    transition: all 0.2s ease;
+}
+
+.shared-notification-btn:hover {
+    background: #ffffff !important;
+    color: #0d6efd !important;
+    border-color: rgba(13, 110, 253, 0.35) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.18);
+}
+
+.shared-notification-btn:active,
+.shared-notification-btn:focus,
+.shared-notification-btn:focus-visible,
+.shared-notification-btn.show,
+.shared-notification-btn[aria-expanded="true"] {
+    background: #ffffff !important;
+    color: #0d6efd !important;
+    border-color: rgba(13, 110, 253, 0.35) !important;
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.16) !important;
+    outline: none !important;
+    transform: none !important;
+}
+
+.shared-notification-btn::after {
+    display: none !important;
+}
+
+/* Notification Badge */
+.shared-notification-btn + .badge,
+.shared-notification-btn .badge,
+.badge.bg-danger {
+    font-size: 0.72rem;
+    font-weight: 700;
+    min-width: 21px;
+    height: 21px;
+    line-height: 1.2;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* Notification Dropdown Menu */
+.notification-dropdown-menu {
+    width: 360px;
+    max-height: 440px;
+    overflow-y: auto;
+    border: none !important;
+    border-radius: 16px !important;
+    background: #ffffff;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+    margin-top: 10px !important;
+}
+
+.notification-dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+    background: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.notification-header-link {
+    color: #0d6efd !important;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.notification-header-link:hover {
+    color: #0a58ca !important;
+    text-decoration: underline;
+}
+
+/* Notification Rows */
+.notification-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.notification-row:last-child {
+    border-bottom: none;
+}
+
+.notification-row.unread {
+    background: #f8fbff;
+}
+
+.notification-main {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.notification-main:hover {
+    text-decoration: none;
+}
+
+.notification-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #eef4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+
+.notification-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    margin: 0 0 4px 0;
+    font-size: 0.92rem;
+    color: #212529;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Delete Button */
+.notification-delete-form {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.notification-delete-btn {
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    padding: 4px 6px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.notification-delete-btn:hover {
+    background: #f8d7da;
+    color: #842029;
+}
+
+/* Empty State */
+.notification-empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: #6c757d;
+    background: #ffffff;
+}
+
+.notification-empty i {
+    opacity: 0.7;
+}
+
+@media (max-width: 576px) {
+    .notification-dropdown-menu {
+        width: 300px;
+        max-width: calc(100vw - 24px);
+    }
+}

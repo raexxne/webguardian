@@ -1,0 +1,146 @@
+/* Scan Page Styles */
+.scan-container {
+    min-height: calc(100vh - 200px);
+    padding: 20px 0;
+}
+
+.scan-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.scan-card:hover {
+    transform: translateY(-5px);
+}
+
+.scan-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+}
+
+.scan-details {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.scan-details ul {
+    margin-bottom: 0;
+}
+
+.scan-details li {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.start-scan-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.start-scan-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Progress indicator for real scanning */
+.scan-progress {
+    display: none;
+    margin: 20px 0;
+}
+
+.progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    animation: progress-animation 2s infinite;
+}
+
+@keyframes progress-animation {
+    0% { width: 0%; }
+    50% { width: 50%; }
+    100% { width: 100%; }
+}
+
+.scan-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 0 10px;
+}
+
+.scan-step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+
+.scan-step::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background: #dee2e6;
+    z-index: 1;
+}
+
+.scan-step:last-child::after {
+    display: none;
+}
+
+.step-icon {
+    width: 25px;
+    height: 25px;
+    background: #6c757d;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.step-text {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Additional styling to match original */
+.border.rounded.p-3.bg-light {
+    background-color: #f8f9fc !important;
+    border-color: #d1d3e2 !important;
+}
+
+.card-header.bg-dark {
+    background: linear-gradient(135deg, #2c3e50, #1a252f) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.modal-header.bg-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+}

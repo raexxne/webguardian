@@ -1,0 +1,139 @@
+<div class="dropdown" data-bs-auto-close="outside">
+  <button class="btn position-relative shared-notification-btn"
+          type="button"
+          id="{{ dropdown_id|default('notificationDropdown') }}"
+          data-bs-toggle="dropdown"
+          aria-expanded="false">
+    <i class="bi bi-bell-fill"></i>
+
+    {% if unread_count > 0 %}
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ unread_count }}
+        <span class="visually-hidden">unread notifications</span>
+      </span>
+    {% endif %}
+  </button>
+
+  <div class="dropdown-menu dropdown-menu-end notification-dropdown-menu p-0"
+       aria-labelledby="{{ dropdown_id|default('notificationDropdown') }}">
+
+    <div class="notification-dropdown-header">
+      <span>Notifications</span>
+
+      {% if notifications %}
+        <form method="POST" action="{{ url_for('mark_notifications_read') }}" class="m-0">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-link btn-sm p-0 notification-header-link">
+            Mark all read
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+    {% if notifications %}
+      {% for n in notifications %}
+        <div class="notification-row {% if n.is_read == 0 %}unread{% endif %}" id="notification-row-{{ n.id }}">
+          <a href="{{ url_for('open_notification', notification_id=n.id) }}" class="notification-main">
+            <div class="notification-icon">
+              {% if 'assigned' in n.message.lower() %}
+                <i class="bi bi-list-check text-primary"></i>
+              {% elif 'submitted' in n.message.lower() %}
+                <i class="bi bi-check-circle text-success"></i>
+              {% else %}
+                <i class="bi bi-info-circle text-info"></i>
+              {% endif %}
+            </div>
+
+            <div class="notification-text">
+              <p class="notification-message">{{ n.message }}</p>
+              <div class="notification-time">
+                {{ n.created_at.strftime('%Y-%m-%d %H:%M') if n.created_at else '' }}
+              </div>
+            </div>
+          </a>
+
+        <form method="POST"
+            action="{{ url_for('delete_notification', notification_id=n.id) }}"
+            class="notification-delete-form ajax-delete-notification"
+            data-notification-id="{{ n.id }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit"
+                class="notification-delete-btn"
+                title="Delete notification"
+                onclick="event.stopPropagation();">
+            <i class="bi bi-trash"></i>
+        </button>
+        </form>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="notification-empty">
+        <i class="bi bi-bell-slash fs-4"></i>
+        <p class="mb-0 mt-2">No notifications</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.ajax-delete-notification').forEach(form => {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const rowId = this.dataset.notificationId;
+      const row = document.getElementById(`notification-row-${rowId}`);
+      const csrfToken = this.querySelector('input[name="csrf_token"]').value;
+      const action = this.action;
+
+      try {
+        const response = await fetch(action, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: new URLSearchParams({
+            csrf_token: csrfToken
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (row) {
+            row.remove();
+          }
+
+          // update unread badge
+          const badge = document.querySelector('.badge.bg-danger');
+          if (badge && typeof data.unread_count !== 'undefined') {
+            if (data.unread_count > 0) {
+              badge.textContent = data.unread_count;
+            } else {
+              badge.remove();
+            }
+          }
+
+          // show empty text if no notifications left
+          const remainingRows = document.querySelectorAll('.notification-row');
+          const menu = document.querySelector('.notification-dropdown-menu');
+
+          if (remainingRows.length === 0 && menu && !menu.querySelector('.notification-empty')) {
+            const empty = document.createElement('div');
+            empty.className = 'notification-empty';
+            empty.innerHTML = '<i class="bi bi-bell-slash fs-4"></i><p class="mb-0 mt-2">No notifications</p>';
+            menu.appendChild(empty);
+          }
+        } else {
+          alert(data.error || 'Failed to delete notification.');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Failed to delete notification.');
+      }
+    });
+  });
+});
+</script>

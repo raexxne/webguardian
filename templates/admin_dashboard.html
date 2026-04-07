@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="admin-card">
+
+  <div class="admin-header">
+    <h2>
+      <i class="bi bi-people-fill"></i>
+      Admin Dashboard
+    </h2>
+
+    <a href="{{ url_for('add_user') }}" class="btn btn-primary">
+      <i class="bi bi-person-plus-fill"></i> Add New User
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>Photo</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <img
+              src="{{ url_for('static', filename='images/' ~ (u.photo if u.photo else 'default.jpg')) }}"
+              class="user-photo"
+              alt="User Photo"
+            >
+          </td>
+
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td class="text-capitalize">{{ u.role }}</td>
+
+          <td>
+            <div class="status-control">
+              <a href="{{ url_for('set_user_status', user_id=u.id, status='inactive') }}"
+                 class="status-arrow" title="Set Inactive" data-csrf-post="true">&#10094;</a>
+
+              {% if u.status == 'active' %}
+                <span class="status-text status-active">Active</span>
+              {% else %}
+                <span class="status-text status-inactive">Inactive</span>
+              {% endif %}
+
+              <a href="{{ url_for('set_user_status', user_id=u.id, status='active') }}"
+                 class="status-arrow" title="Set Active" data-csrf-post="true">&#10095;</a>
+            </div>
+          </td>
+
+          <td>
+            <div class="action-group">
+
+              <!-- VIEW -->
+              <button type="button"
+                class="btn btn-sm btn-outline-info"
+                data-bs-toggle="modal"
+                data-bs-target="#viewUserModal"
+                data-name="{{ u.name }}"
+                data-email="{{ u.email }}"
+                data-role="{{ u.role }}"
+                data-status="{{ u.status }}">
+                <i class="bi bi-eye-fill"></i>
+              </button>
+
+              <!-- EDIT -->
+              <button type="button"
+                class="btn btn-sm btn-outline-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#editUserModal"
+                data-id="{{ u.id }}"
+                data-name="{{ u.name }}"
+                data-email="{{ u.email }}"
+                data-role="{{ u.role }}">
+                <i class="bi bi-pencil-square"></i>
+              </button>
+
+              <!-- DELETE -->
+              <button type="button"
+                class="btn btn-sm btn-outline-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteUserModal"
+                data-user-name="{{ u.name }}"
+                data-delete-url="{{ url_for('delete_user', user_id=u.id) }}">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal fade" id="viewUserModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title"><i class="bi bi-eye-fill"></i> User Info</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-start">
+        <p><strong>Name:</strong> <span id="viewName"></span></p>
+        <p><strong>Email:</strong> <span id="viewEmail"></span></p>
+        <p><strong>Role:</strong> <span id="viewRole"></span></p>
+        <p><strong>Status:</strong> <span id="viewStatus"></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="post" class="modal-content" id="editUserForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Edit User</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body text-start">
+        <label class="form-label">Name</label>
+        <input type="text" name="name" class="form-control" required>
+
+        <label class="form-label mt-2">Email</label>
+        <input type="email" name="email" class="form-control" required>
+
+        <label class="form-label mt-2">New Password</label>
+        <div class="input-group">
+          <input
+            type="password"
+            name="password"
+            class="form-control"
+            id="editPasswordInput"
+            placeholder="Enter new password"
+          >
+          <button type="button" class="btn btn-outline-secondary" id="togglePasswordBtn">
+            <i class="bi bi-eye-slash" id="passwordEyeIcon"></i>
+          </button>
+        </div>
+
+        <div class="password-tips-box mt-3 mb-3">
+          <strong>Password Tips:</strong>
+          <ul class="mb-0 mt-2 password-tips-list">
+            <li id="edit-tip-length" class="pending">
+              <i class="bi bi-circle"></i> Use at least 6 characters
+            </li>
+            <li id="edit-tip-upper" class="pending">
+              <i class="bi bi-circle"></i> Include uppercase letter
+            </li>
+            <li id="edit-tip-lower" class="pending">
+              <i class="bi bi-circle"></i> Include lowercase letter
+            </li>
+            <li id="edit-tip-number" class="pending">
+              <i class="bi bi-circle"></i> Add at least one number
+            </li>
+            <li id="edit-tip-special" class="pending">
+              <i class="bi bi-circle"></i> Add at least one special character
+            </li>
+            <li id="edit-tip-safe" class="pending">
+              <i class="bi bi-circle"></i> Avoid common words and personal information
+            </li>
+          </ul>
+        </div>
+
+        <label class="form-label mt-2">Confirm Password</label>
+        <div class="input-group">
+          <input
+            type="password"
+            name="confirm_password"
+            class="form-control"
+            id="editConfirmPasswordInput"
+            placeholder="Confirm new password"
+          >
+          <button type="button" class="btn btn-outline-secondary" id="toggleConfirmPasswordBtn">
+            <i class="bi bi-eye-slash" id="confirmPasswordEyeIcon"></i>
+          </button>
+        </div>
+
+        <div id="editPasswordMessage" class="password-message mt-3"></div>
+
+        <label class="form-label mt-3">Role</label>
+        <select name="role" class="form-select">
+          <option value="admin">Admin</option>
+          <option value="manager">Manager</option>
+          <option value="staff">Staff</option>
+        </select>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-save"></i> Save
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill"></i> Delete User</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Are you sure you want to delete
+        <strong id="deleteUserName"></strong>?
+      </div>
+
+      <div class="modal-footer">
+        <a id="confirmDeleteBtn" class="btn btn-danger" data-csrf-post="true">
+          <i class="bi bi-trash-fill"></i> Delete
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('viewUserModal').addEventListener('show.bs.modal', e => {
+  const b = e.relatedTarget;
+  document.getElementById('viewName').textContent = b.dataset.name;
+  document.getElementById('viewEmail').textContent = b.dataset.email;
+  document.getElementById('viewRole').textContent = b.dataset.role;
+  document.getElementById('viewStatus').textContent = b.dataset.status;
+});
+
+const editUserModal = document.getElementById('editUserModal');
+const editUserForm = document.getElementById('editUserForm');
+const editPasswordInput = document.getElementById('editPasswordInput');
+const editConfirmPasswordInput = document.getElementById('editConfirmPasswordInput');
+const editPasswordMessage = document.getElementById('editPasswordMessage');
+
+const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+const passwordEyeIcon = document.getElementById('passwordEyeIcon');
+
+const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPasswordBtn');
+const confirmPasswordEyeIcon = document.getElementById('confirmPasswordEyeIcon');
+
+const editTipLength = document.getElementById('edit-tip-length');
+const editTipUpper = document.getElementById('edit-tip-upper');
+const editTipLower = document.getElementById('edit-tip-lower');
+const editTipNumber = document.getElementById('edit-tip-number');
+const editTipSpecial = document.getElementById('edit-tip-special');
+const editTipSafe = document.getElementById('edit-tip-safe');
+
+editUserModal.addEventListener('show.bs.modal', e => {
+  const b = e.relatedTarget;
+  const f = document.getElementById('editUserForm');
+
+  f.action = `/admin/edit/${b.dataset.id}`;
+  f.name.value = b.dataset.name;
+  f.email.value = b.dataset.email;
+  f.role.value = b.dataset.role;
+
+  editPasswordInput.value = '';
+  editConfirmPasswordInput.value = '';
+  resetPasswordTips();
+  clearPasswordMessage();
+});
+
+function setTipStatus(element, isValid) {
+  const icon = element.querySelector('i');
+
+  if (isValid) {
+    element.classList.add('completed');
+    element.classList.remove('pending');
+    icon.className = 'bi bi-check-circle-fill';
+  } else {
+    element.classList.remove('completed');
+    element.classList.add('pending');
+    icon.className = 'bi bi-circle';
+  }
+}
+
+function resetPasswordTips() {
+  [editTipLength, editTipUpper, editTipLower, editTipNumber, editTipSpecial, editTipSafe]
+    .forEach(item => {
+      item.classList.remove('completed');
+      item.classList.add('pending');
+      item.querySelector('i').className = 'bi bi-circle';
+    });
+}
+
+function clearPasswordMessage() {
+  editPasswordMessage.className = 'password-message mt-3';
+  editPasswordMessage.textContent = '';
+}
+
+function showPasswordMessage(message, type) {
+  editPasswordMessage.textContent = message;
+  editPasswordMessage.className = 'password-message mt-3 ' + type;
+}
+
+function validatePassword(password) {
+  const hasMinLength = password.length >= 6;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+  return hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+}
+
+function updatePasswordTips(password) {
+  if (password.length === 0) {
+    resetPasswordTips();
+    return;
+  }
+
+  const hasMinLength = password.length >= 6;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+  const lowerPass = password.toLowerCase();
+  const safePassword =
+    !lowerPass.includes('password') &&
+    !lowerPass.includes('123456') &&
+    !lowerPass.includes('admin') &&
+    !lowerPass.includes('qwerty') &&
+    !lowerPass.includes('name') &&
+    !lowerPass.includes('email');
+
+  setTipStatus(editTipLength, hasMinLength);
+  setTipStatus(editTipUpper, hasUppercase);
+  setTipStatus(editTipLower, hasLowercase);
+  setTipStatus(editTipNumber, hasNumber);
+  setTipStatus(editTipSpecial, hasSpecial);
+  setTipStatus(editTipSafe, safePassword);
+}
+
+document.getElementById('deleteUserModal').addEventListener('show.bs.modal', e => {
+  const b = e.relatedTarget;
+  document.getElementById('deleteUserName').textContent = b.dataset.userName;
+  document.getElementById('confirmDeleteBtn').href = b.dataset.deleteUrl;
+});
+
+togglePasswordBtn.addEventListener('click', () => {
+  if (editPasswordInput.type === 'password') {
+    editPasswordInput.type = 'text';
+    passwordEyeIcon.className = 'bi bi-eye';
+  } else {
+    editPasswordInput.type = 'password';
+    passwordEyeIcon.className = 'bi bi-eye-slash';
+  }
+});
+
+toggleConfirmPasswordBtn.addEventListener('click', () => {
+  if (editConfirmPasswordInput.type === 'password') {
+    editConfirmPasswordInput.type = 'text';
+    confirmPasswordEyeIcon.className = 'bi bi-eye';
+  } else {
+    editConfirmPasswordInput.type = 'password';
+    confirmPasswordEyeIcon.className = 'bi bi-eye-slash';
+  }
+});
+
+editPasswordInput.addEventListener('input', function () {
+  const password = editPasswordInput.value.trim();
+  const confirmPassword = editConfirmPasswordInput.value.trim();
+
+  updatePasswordTips(password);
+
+  if (!password && !confirmPassword) {
+    clearPasswordMessage();
+    return;
+  }
+
+  if (confirmPassword !== '') {
+    if (password === confirmPassword) {
+      showPasswordMessage('Password matched successfully.', 'success');
+    } else {
+      showPasswordMessage('Password and Confirm Password do not match.', 'error');
+    }
+  } else {
+    clearPasswordMessage();
+  }
+});
+
+editConfirmPasswordInput.addEventListener('input', function () {
+  const password = editPasswordInput.value.trim();
+  const confirmPassword = editConfirmPasswordInput.value.trim();
+
+  if (!password && !confirmPassword) {
+    clearPasswordMessage();
+    return;
+  }
+
+  if (password === confirmPassword) {
+    showPasswordMessage('Password matched successfully.', 'success');
+  } else {
+    showPasswordMessage('Password and Confirm Password do not match.', 'error');
+  }
+});
+
+editUserForm.addEventListener('submit', function (e) {
+  const password = editPasswordInput.value.trim();
+  const confirmPassword = editConfirmPasswordInput.value.trim();
+
+  if (password === '' && confirmPassword === '') {
+    clearPasswordMessage();
+    return;
+  }
+
+  if (password === '' || confirmPassword === '') {
+    e.preventDefault();
+    showPasswordMessage('Please fill both password and confirm password.', 'error');
+    return;
+  }
+
+  if (!validatePassword(password)) {
+    e.preventDefault();
+    showPasswordMessage(
+      'Password must be at least 6 characters and include uppercase, lowercase, number, and special character.',
+      'error'
+    );
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    e.preventDefault();
+    showPasswordMessage('Password and Confirm Password do not match.', 'error');
+    return;
+  }
+
+  showPasswordMessage('Password looks good.', 'success');
+});
+</script>
+
+{% endblock %}

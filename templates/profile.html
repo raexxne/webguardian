@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Profile Page CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+
+<!-- Bootstrap Icons -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+  rel="stylesheet"
+>
+
+<div class="profile-container">
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <i class="bi bi-person-badge-fill"></i>
+    My Profile
+  </div>
+
+  <div class="profile-photo">
+    <img
+      src="{{ url_for('static', filename='images/' + (user.photo or 'default.jpg')) }}"
+      alt="Profile Photo"
+    >
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="profile-form" id="profileForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label>Change Profile Photo</label>
+    <input type="file" name="photo" accept="image/*">
+
+    <label>Name</label>
+    <input type="text" name="name" value="{{ user.name }}" required>
+
+    <label>Email</label>
+    <input type="email" name="email" value="{{ user.email }}" required>
+
+    <label>New Password</label>
+    <div class="password-input-group">
+      <input
+        type="password"
+        name="password"
+        id="profilePassword"
+        placeholder="Enter new password"
+      >
+      <button
+        type="button"
+        class="password-toggle"
+        id="toggleProfilePassword"
+        tabindex="-1"
+        aria-label="Toggle password visibility"
+      >
+        <i class="bi bi-eye-slash" id="profileEyeIcon"></i>
+      </button>
+    </div>
+
+    <div class="password-tips-box">
+      <strong>Password Tips:</strong>
+      <ul class="password-tips-list">
+        <li id="tip-length" class="pending">
+          <i class="bi bi-circle"></i> Use at least 6 characters
+        </li>
+        <li id="tip-upper" class="pending">
+          <i class="bi bi-circle"></i> Include uppercase letter
+        </li>
+        <li id="tip-lower" class="pending">
+          <i class="bi bi-circle"></i> Include lowercase letter
+        </li>
+        <li id="tip-number" class="pending">
+          <i class="bi bi-circle"></i> Add at least one number
+        </li>
+        <li id="tip-special" class="pending">
+          <i class="bi bi-circle"></i> Add at least one special character
+        </li>
+        <li id="tip-safe" class="pending">
+          <i class="bi bi-circle"></i> Avoid common words and personal information
+        </li>
+      </ul>
+    </div>
+
+    <label>Confirm Password</label>
+    <div class="password-input-group">
+      <input
+        type="password"
+        name="confirm_password"
+        id="profileConfirmPassword"
+        placeholder="Confirm new password"
+      >
+      <button
+        type="button"
+        class="password-toggle"
+        id="toggleProfileConfirmPassword"
+        tabindex="-1"
+        aria-label="Toggle confirm password visibility"
+      >
+        <i class="bi bi-eye-slash" id="profileConfirmEyeIcon"></i>
+      </button>
+    </div>
+
+    <div id="profilePasswordMessage" class="password-message"></div>
+
+    <button type="submit" class="btn">
+      Save Changes
+    </button>
+
+  </form>
+</div>
+
+<script>
+  const profileForm = document.getElementById('profileForm');
+
+  const passwordInput = document.getElementById('profilePassword');
+  const confirmPasswordInput = document.getElementById('profileConfirmPassword');
+  const passwordMessage = document.getElementById('profilePasswordMessage');
+
+  const togglePasswordBtn = document.getElementById('toggleProfilePassword');
+  const passwordEyeIcon = document.getElementById('profileEyeIcon');
+
+  const toggleConfirmPasswordBtn = document.getElementById('toggleProfileConfirmPassword');
+  const confirmPasswordEyeIcon = document.getElementById('profileConfirmEyeIcon');
+
+  const tipLength = document.getElementById('tip-length');
+  const tipUpper = document.getElementById('tip-upper');
+  const tipLower = document.getElementById('tip-lower');
+  const tipNumber = document.getElementById('tip-number');
+  const tipSpecial = document.getElementById('tip-special');
+  const tipSafe = document.getElementById('tip-safe');
+
+  function setTipStatus(element, isValid) {
+    const icon = element.querySelector('i');
+
+    if (isValid) {
+      element.classList.add('completed');
+      element.classList.remove('pending');
+      icon.className = 'bi bi-check-circle-fill';
+    } else {
+      element.classList.remove('completed');
+      element.classList.add('pending');
+      icon.className = 'bi bi-circle';
+    }
+  }
+
+  function resetPasswordTips() {
+    [tipLength, tipUpper, tipLower, tipNumber, tipSpecial, tipSafe].forEach(item => {
+      item.classList.remove('completed');
+      item.classList.add('pending');
+      item.querySelector('i').className = 'bi bi-circle';
+    });
+  }
+
+  function validatePassword(password) {
+    const hasMinLength = password.length >= 6;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+    return hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+  }
+
+  function updatePasswordTips(password) {
+    if (password.length === 0) {
+      resetPasswordTips();
+      return;
+    }
+
+    const hasMinLength = password.length >= 6;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+    const lowerPass = password.toLowerCase();
+    const safePassword =
+      !lowerPass.includes('password') &&
+      !lowerPass.includes('123456') &&
+      !lowerPass.includes('admin') &&
+      !lowerPass.includes('qwerty') &&
+      !lowerPass.includes('name') &&
+      !lowerPass.includes('email');
+
+    setTipStatus(tipLength, hasMinLength);
+    setTipStatus(tipUpper, hasUppercase);
+    setTipStatus(tipLower, hasLowercase);
+    setTipStatus(tipNumber, hasNumber);
+    setTipStatus(tipSpecial, hasSpecial);
+    setTipStatus(tipSafe, safePassword);
+  }
+
+  function clearPasswordMessage() {
+    passwordMessage.className = 'password-message';
+    passwordMessage.textContent = '';
+  }
+
+  function showPasswordMessage(message, type) {
+    passwordMessage.textContent = message;
+    passwordMessage.className = 'password-message ' + type;
+  }
+
+  togglePasswordBtn.addEventListener('click', function () {
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      passwordEyeIcon.className = 'bi bi-eye';
+    } else {
+      passwordInput.type = 'password';
+      passwordEyeIcon.className = 'bi bi-eye-slash';
+    }
+  });
+
+  toggleConfirmPasswordBtn.addEventListener('click', function () {
+    if (confirmPasswordInput.type === 'password') {
+      confirmPasswordInput.type = 'text';
+      confirmPasswordEyeIcon.className = 'bi bi-eye';
+    } else {
+      confirmPasswordInput.type = 'password';
+      confirmPasswordEyeIcon.className = 'bi bi-eye-slash';
+    }
+  });
+
+  passwordInput.addEventListener('input', function () {
+    const password = passwordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+
+    updatePasswordTips(password);
+
+    if (!password && !confirmPassword) {
+      clearPasswordMessage();
+      return;
+    }
+
+    if (confirmPassword !== '') {
+      if (password === confirmPassword) {
+        showPasswordMessage('Password matched successfully.', 'success');
+      } else {
+        showPasswordMessage('Password and Confirm Password do not match.', 'error');
+      }
+    } else {
+      clearPasswordMessage();
+    }
+  });
+
+  confirmPasswordInput.addEventListener('input', function () {
+    const password = passwordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+
+    if (!password && !confirmPassword) {
+      clearPasswordMessage();
+      return;
+    }
+
+    if (password === confirmPassword) {
+      showPasswordMessage('Password matched successfully.', 'success');
+    } else {
+      showPasswordMessage('Password and Confirm Password do not match.', 'error');
+    }
+  });
+
+  profileForm.addEventListener('submit', function (e) {
+    const password = passwordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+
+    if (password === '' && confirmPassword === '') {
+      clearPasswordMessage();
+      return;
+    }
+
+    if (password === '' || confirmPassword === '') {
+      e.preventDefault();
+      showPasswordMessage('Please fill both password and confirm password.', 'error');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      e.preventDefault();
+      showPasswordMessage(
+        'Password must be at least 6 characters and include uppercase, lowercase, number, and special character.',
+        'error'
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      e.preventDefault();
+      showPasswordMessage('Password and Confirm Password do not match.', 'error');
+      return;
+    }
+
+    showPasswordMessage('Password looks good.', 'success');
+  });
+</script>
+
+{% endblock %}

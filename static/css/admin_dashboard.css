@@ -1,0 +1,400 @@
+/* =========================
+   Admin Dashboard Styles
+   120% size + 100% window width
+========================= */
+
+.admin-page-wrapper {
+  width: 100%;
+  max-width: 100%;
+  padding: 1.75rem 1.75rem 2rem;
+}
+
+.admin-card {
+  width: 100%;
+  max-width: 100%;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   Header
+========================= */
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-header h2 {
+  font-weight: 700;
+  font-size: 2rem;
+  color: #0d6efd;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.admin-header .btn {
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+}
+
+/* =========================
+   Table
+========================= */
+
+.table-responsive {
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0;
+  font-size: 1rem;
+}
+
+.table thead th {
+  background-color: #f1f5ff;
+  color: #0d6efd;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  padding: 1rem 0.85rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 1rem 0.85rem;
+  font-size: 1rem;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* =========================
+   Action Group
+========================= */
+
+.action-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.action-group .btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+/* =========================
+   User Photo
+========================= */
+
+.user-photo {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #dee2e6;
+}
+
+/* =========================
+   Status Toggle
+========================= */
+
+.arrow-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.arrow-toggle .arrow {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.arrow-toggle .status-text {
+  min-width: 90px;
+  text-align: center;
+}
+
+.status-active {
+  color: #198754;
+}
+
+.status-inactive {
+  color: #dc3545;
+}
+
+.arrow-toggle:hover .arrow {
+  color: #0d6efd;
+}
+
+.arrow-toggle,
+.arrow-toggle:hover,
+.arrow-toggle:focus,
+.arrow-toggle:active {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* =========================
+   Status Control
+========================= */
+
+.status-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-weight: 600;
+}
+
+.status-arrow {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: #000;
+  line-height: 1;
+}
+
+.status-arrow:hover {
+  color: #0d6efd;
+}
+
+.status-text {
+  min-width: 90px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* =========================
+   Flash Message Position
+========================= */
+
+.alert-container {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 1055;
+}
+
+/* =========================
+   Form Controls in Modal
+========================= */
+
+.modal-content {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 1rem 1.25rem;
+}
+
+.modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.modal-body {
+  padding: 1.4rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.25rem;
+}
+
+.form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+}
+
+.form-control,
+.form-select {
+  min-height: 48px;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.95rem;
+}
+
+.input-group .btn {
+  min-width: 48px;
+  border-radius: 0.75rem;
+}
+
+/* =========================
+   Password Tips
+========================= */
+
+.password-tips-box {
+  background: #f8f9fa;
+  border-left: 4px solid #0d6efd;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 0.96rem;
+  color: #495057;
+}
+
+.password-tips-box strong {
+  color: #0d6efd;
+  font-size: 1rem;
+}
+
+.password-tips-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.password-tips-list li {
+  padding: 7px 0;
+  color: #6c757d;
+  font-size: 0.96rem;
+  transition: all 0.25s ease;
+}
+
+.password-tips-list li i {
+  margin-right: 8px;
+  color: #adb5bd;
+  transition: all 0.25s ease;
+}
+
+.password-tips-list li.completed {
+  color: #198754;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.password-tips-list li.completed i {
+  color: #198754;
+}
+
+.password-tips-list li.pending {
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.password-message {
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  display: none;
+}
+
+.password-message.error {
+  display: block;
+  background-color: #f8d7da;
+  color: #842029;
+  border: 1px solid #f5c2c7;
+}
+
+.password-message.success {
+  display: block;
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.btn {
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 992px) {
+  .admin-page-wrapper {
+    padding: 1.25rem;
+  }
+
+  .admin-card {
+    padding: 1.5rem;
+  }
+
+  .admin-header h2 {
+    font-size: 1.7rem;
+  }
+
+  .table thead th,
+  .table tbody td {
+    font-size: 0.95rem;
+    padding: 0.85rem 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-page-wrapper {
+    padding: 1rem;
+  }
+
+  .admin-card {
+    padding: 1.2rem;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .admin-header h2 {
+    font-size: 1.45rem;
+  }
+
+  .user-photo {
+    width: 46px;
+    height: 46px;
+  }
+
+  .status-control {
+    gap: 10px;
+  }
+
+  .status-text {
+    min-width: 78px;
+    font-size: 0.92rem;
+  }
+
+  .action-group .btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+}

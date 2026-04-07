@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="bi bi-shield-check"></i> Verify OTP</h4>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">
+            We've sent a 6-digit OTP to: <strong>{{ email }}</strong>
+          </p>
+          <p class="text-muted mb-4">
+            Enter the OTP you received. It will expire in <span id="timer">10:00</span>.
+          </p>
+          
+          <form method="POST" id="otpForm">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+              <label for="otp" class="form-label">One-Time Password</label>
+              <div class="input-group">
+                <input type="text" class="form-control text-center" id="otp" name="otp" 
+                       placeholder="Enter 6-digit OTP" maxlength="6" required
+                       pattern="[0-9]{6}" style="font-size: 1.2rem; letter-spacing: 5px;">
+                <button type="button" class="btn btn-outline-secondary" id="showOtp">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+              <div class="form-text">
+                <small>Check your email inbox (and spam folder)</small>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Verify OTP
+              </button>
+              
+              <button type="button" class="btn btn-warning" id="resendBtn" disabled>
+                <i class="bi bi-arrow-clockwise"></i> Resend OTP
+                <span id="resendTimer">(60s)</span>
+              </button>
+              
+              <a href="{{ url_for('forgot_password') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Use Different Email
+              </a>
+            </div>
+          </form>
+          
+          <div class="mt-4">
+            <div class="alert alert-info" role="alert">
+              <i class="bi bi-info-circle"></i>
+              Didn't receive the OTP? Wait for the timer below then click "Resend OTP"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || "";
+
+// Timer untuk OTP expiry (10 menit)
+let otpTimeLeft = 600; // 10 menit dalam detik
+const otpTimerElement = document.getElementById('timer');
+
+const otpTimer = setInterval(() => {
+    otpTimeLeft--;
+    const minutes = Math.floor(otpTimeLeft / 60);
+    const seconds = otpTimeLeft % 60;
+    otpTimerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (otpTimeLeft <= 0) {
+        clearInterval(otpTimer);
+        otpTimerElement.textContent = "Expired!";
+        otpTimerElement.style.color = "red";
+        document.getElementById('otpForm').submit(); // Auto-submit untuk menampilkan error
+    }
+}, 1000);
+
+// Timer untuk resend OTP (60 detik)
+let resendTimeLeft = 60;
+const resendTimerElement = document.getElementById('resendTimer');
+const resendBtn = document.getElementById('resendBtn');
+
+const resendTimer = setInterval(() => {
+    resendTimeLeft--;
+    resendTimerElement.textContent = `(${resendTimeLeft}s)`;
+    
+    if (resendTimeLeft <= 0) {
+        clearInterval(resendTimer);
+        resendBtn.disabled = false;
+        resendTimerElement.textContent = '';
+        resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend OTP';
+    }
+}, 1000);
+
+// Toggle OTP visibility
+document.getElementById('showOtp').addEventListener('click', function() {
+    const otpInput = document.getElementById('otp');
+    const type = otpInput.getAttribute('type') === 'text' ? 'password' : 'text';
+    otpInput.setAttribute('type', type);
+    this.innerHTML = type === 'text' ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+});
+
+// Auto-focus on OTP input
+document.getElementById('otp').focus();
+
+// Auto-move to next input (if using 6 separate inputs)
+document.getElementById('otp').addEventListener('input', function(e) {
+    if (this.value.length === 6) {
+        this.form.submit();
+    }
+});
+
+// Resend OTP functionality
+resendBtn.addEventListener('click', function() {
+    if (this.disabled) return;
+    
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+    
+    fetch('/resend-otp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('New OTP has been sent to your email!');
+            // Reset resend timer
+            resendTimeLeft = 60;
+            resendTimerElement.textContent = `(${resendTimeLeft}s)`;
+            
+            const newTimer = setInterval(() => {
+                resendTimeLeft--;
+                resendTimerElement.textContent = `(${resendTimeLeft}s)`;
+                
+                if (resendTimeLeft <= 0) {
+                    clearInterval(newTimer);
+                    resendBtn.disabled = false;
+                    resendTimerElement.textContent = '';
+                    resendBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend OTP';
+                } else {
+                    resendBtn.disabled = true;
+                }
+            }, 1000);
+        } else {
+            alert('Failed to resend OTP: ' + data.message);
+        }
+        this.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend OTP';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        this.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Resend OTP';
+    });
+});
+</script>
+
+{% endblock %}

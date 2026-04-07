@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+
+<!-- Bootstrap Icons -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+  rel="stylesheet"
+>
+
+<div class="card auth-card">
+  
+  <!-- Web Guardian inside the card -->
+  <div class="text-center mb-4">
+    <h1 class="web-guardian-brand">
+      Web Guardian
+    </h1>
+    <p class="department">Sabah Water Department</p>
+  </div>
+  
+  <hr>
+
+  <h2 class="text-center mb-4">Login</h2>
+
+  <form method="post" action="{{ url_for('login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Email -->
+    <div class="mb-3 input-icon-wrapper">
+      <label class="form-label">Email</label>
+
+      <i class="bi bi-envelope input-icon-left"></i>
+      <input
+        type="email"
+        name="email"
+        class="form-control with-left-icon"
+        placeholder="example@gmail.com"
+        required
+      >
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3 input-icon-wrapper">
+      <label class="form-label">Password</label>
+
+      <i class="bi bi-lock input-icon-left"></i>
+
+      <input
+        type="password"
+        name="password"
+        class="form-control with-both-icons"
+        id="loginPassword"
+        placeholder="Password"
+        required
+      >
+
+      <!-- Eye icon INSIDE input -->
+      <button
+        type="button"
+        class="password-toggle"
+        id="toggleLoginPassword"
+        tabindex="-1"
+        aria-label="Toggle password visibility"
+      >
+        <i class="bi bi-eye-slash" id="loginEyeIcon"></i>
+      </button>
+    </div>
+
+    <!-- Login Button -->
+    <button type="submit" class="btn btn-primary w-100">
+      Login
+    </button>
+  </form>
+
+  <p class="muted text-center mt-3">
+    <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+  </p>
+
+</div>
+
+<script>
+  const passwordInput = document.getElementById('loginPassword');
+  const toggleBtn = document.getElementById('toggleLoginPassword');
+  const eyeIcon = document.getElementById('loginEyeIcon');
+
+  toggleBtn.addEventListener('click', function () {
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeIcon.className = 'bi bi-eye';
+    } else {
+      passwordInput.type = 'password';
+      eyeIcon.className = 'bi bi-eye-slash';
+    }
+  });
+</script>
+
+{% endblock %}

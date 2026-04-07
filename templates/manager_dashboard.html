@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manager_dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="manager-dashboard">
+
+  <!-- HEADER -->
+  <div class="dashboard-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h2><i class="bi bi-person-badge-fill me-2"></i>Manager Dashboard</h2>
+      <p>Monitor security activities and team progress</p>
+    </div>
+
+    <!-- RIGHT CONTROLS (View Staff Findings + Notification) -->
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+
+      <!-- Staff Dropdown Filter -->
+      <form method="GET" class="d-flex align-items-center gap-2">
+        <label class="text-muted small mb-0">View Staff Findings:</label>
+        <select name="staff_id"
+                class="form-select form-select-sm"
+                style="min-width:220px"
+                onchange="this.form.submit()">
+          <option value="">All Staff</option>
+
+          {% set staff_items = staff_list|default([]) %}
+          {% for staff in staff_items %}
+            {% set sid = staff.id %}
+            <option value="{{ sid }}"
+              {% if (selected_staff_id|default(0)|int) == (sid|int) %}selected{% endif %}>
+              {{ staff.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </form>
+
+      <!-- Notification Button -->
+      {% set dropdown_id = 'managerNotificationDropdown' %}
+      {% include '_notification_dropdown.html' %}
+    </div>
+  </div>
+
+  <!-- =========================
+       FINDINGS TOTAL SUMMARY
+  ========================== -->
+  <div class="row mt-4 mb-3 g-3">
+    <div class="col-md-4">
+      <div class="risk-card high-risk text-center">
+        <h2>{{ high_count|default(0)|int }}</h2>
+        <p>Total High Risk Findings</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="risk-card medium-risk text-center">
+        <h2>{{ medium_count|default(0)|int }}</h2>
+        <p>Total Medium Risk Findings</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="risk-card low-risk text-center">
+        <h2>{{ low_count|default(0)|int }}</h2>
+        <p>Total Low Risk Findings</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       BAR CHART
+  ========================== -->
+  <div class="risk-analytics mt-2">
+    <div class="card shadow-sm border-0 p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="mb-0">
+            <i class="bi bi-bar-chart-fill me-2 text-primary"></i>
+            Findings Distribution
+          </h5>
+          <small class="text-muted">
+            Chart counts are calculated from scan results.
+          </small>
+        </div>
+
+        <span class="badge bg-primary p-2">
+          <i class="bi bi-search me-1"></i>
+          Total Findings: {{ total_count|default(0)|int }}
+        </span>
+      </div>
+
+      <hr>
+
+      {% set total = (high_count|default(0)|int) + (medium_count|default(0)|int) + (low_count|default(0)|int) %}
+      {% if total == 0 %}
+        <div class="alert alert-info mb-0">
+          No findings yet for this selection.
+        </div>
+      {% else %}
+        <div class="d-flex justify-content-center">
+          <div style="max-width:820px; width:100%;">
+            <canvas id="riskBarChart" height="150"></canvas>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="quick-actions-box">
+    <h5>Quick Actions</h5>
+    <p class="quick-actions-desc">
+      Manage tasks, review reports, and monitor progress from one place.
+    </p>
+
+    <div class="row justify-content-center g-3">
+      <div class="col-md-5 col-lg-4">
+        <a href="{{ url_for('manager_tasks') }}" class="quick-action-card">
+          <div class="qa-icon bg-primary">
+            <i class="bi bi-list-check"></i>
+          </div>
+          <div class="qa-content">
+            <h6>Assign Scan Task</h6>
+            <p>Create and assign vulnerability scanning tasks to staff.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-5 col-lg-4">
+        <a href="{{ url_for('manager_reports') }}" class="quick-action-card">
+          <div class="qa-icon bg-secondary">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <div class="qa-content">
+            <h6>Review Reports</h6>
+            <p>Analyse completed scan results and findings.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const highCount = {{ high_count|default(0)|int }};
+  const mediumCount = {{ medium_count|default(0)|int }};
+  const lowCount = {{ low_count|default(0)|int }};
+  const total = highCount + mediumCount + lowCount;
+
+  if (total !== 0 && typeof Chart !== 'undefined') {
+    const el = document.getElementById('riskBarChart');
+    if (el) {
+      const ctx = el.getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['High', 'Medium', 'Low'],
+          datasets: [{
+            label: 'Findings Count',
+            data: [highCount, mediumCount, lowCount],
+            backgroundColor: ['#dc3545', '#ffc107', '#198754'],
+            borderWidth: 1,
+            borderRadius: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    const btn = document.getElementById('managerNotificationDropdown');
+    if (!btn) return;
+
+    const dropdownRoot = btn.closest('.dropdown');
+    if (!dropdownRoot) return;
+
+    if (!dropdownRoot.contains(e.target)) {
+      if (window.bootstrap && bootstrap.Dropdown) {
+        const instance = bootstrap.Dropdown.getOrCreateInstance(btn);
+        instance.hide();
+      }
+    }
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'Escape') return;
+    const btn = document.getElementById('managerNotificationDropdown');
+    if (!btn) return;
+    if (window.bootstrap && bootstrap.Dropdown) {
+      const instance = bootstrap.Dropdown.getOrCreateInstance(btn);
+      instance.hide();
+    }
+  });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Add User CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/add_user.css') }}">
+
+<!-- Bootstrap Icons -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+  rel="stylesheet"
+>
+
+<div class="card add-user-card">
+
+  <div class="add-user-header">
+    <h2>
+      <i class="bi bi-person-plus-fill"></i>
+      Add New User
+    </h2>
+  </div>
+
+<form method="post" id="addUserForm">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Name -->
+    <div class="mb-3 input-icon-wrapper">
+      <label class="form-label">Name</label>
+      <i class="bi bi-person input-icon-left"></i>
+      <input
+        type="text"
+        name="name"
+        class="form-control with-left-icon"
+        placeholder="Full name"
+        required
+      >
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3 input-icon-wrapper">
+      <label class="form-label">Email</label>
+      <i class="bi bi-envelope input-icon-left"></i>
+      <input
+        type="email"
+        name="email"
+        class="form-control with-left-icon"
+        placeholder="user@domain.com"
+        required
+      >
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3 input-icon-wrapper">
+      <label class="form-label">Password</label>
+      <i class="bi bi-lock input-icon-left"></i>
+
+      <input
+        type="password"
+        name="password"
+        class="form-control with-both-icons"
+        id="addUserPassword"
+        placeholder="Password"
+        minlength="6"
+        required
+      >
+
+      <button
+        type="button"
+        class="password-toggle"
+        id="toggleAddUserPassword"
+        tabindex="-1"
+        aria-label="Toggle password visibility"
+      >
+        <i class="bi bi-eye-slash" id="addUserEyeIcon"></i>
+      </button>
+    </div>
+
+    <!-- Password Tips -->
+    <div class="password-tips-box mb-3">
+      <strong>Password Tips:</strong>
+      <ul class="mb-0 mt-2 password-tips-list" style="list-style: none; padding-left: 0;">
+        <li id="tip-length" class="pending">
+          <i class="bi bi-circle"></i> Use at least 6 characters
+        </li>
+        <li id="tip-upper" class="pending">
+          <i class="bi bi-circle"></i> Include uppercase letter
+        </li>
+        <li id="tip-lower" class="pending">
+          <i class="bi bi-circle"></i> Include lowercase letter
+        </li>
+        <li id="tip-number" class="pending">
+          <i class="bi bi-circle"></i> Add at least one number
+        </li>
+        <li id="tip-special" class="pending">
+          <i class="bi bi-circle"></i> Add at least one special character
+        </li>
+        <li id="tip-safe" class="pending">
+          <i class="bi bi-circle"></i> Avoid common words and personal information
+        </li>
+      </ul>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="mb-3 input-icon-wrapper">
+      <label class="form-label">Confirm Password</label>
+      <i class="bi bi-shield-lock input-icon-left"></i>
+
+      <input
+        type="password"
+        name="confirm_password"
+        class="form-control with-both-icons"
+        id="confirmUserPassword"
+        placeholder="Confirm Password"
+        minlength="6"
+        required
+      >
+
+      <button
+        type="button"
+        class="password-toggle"
+        id="toggleConfirmUserPassword"
+        tabindex="-1"
+        aria-label="Toggle confirm password visibility"
+      >
+        <i class="bi bi-eye-slash" id="confirmUserEyeIcon"></i>
+      </button>
+    </div>
+
+    <!-- Validation Message -->
+    <div id="passwordMessage" class="password-message mb-3"></div>
+
+    <!-- Role -->
+    <div class="mb-4">
+      <label class="form-label">Role</label>
+      <select name="role" class="form-select" required>
+        <option value="" disabled selected>Select role</option>
+        <option value="admin">Admin</option>
+        <option value="manager">Manager</option>
+        <option value="staff">Staff</option>
+      </select>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary w-100">
+      <i class="bi bi-person-check-fill"></i>
+      Add User
+    </button>
+
+  </form>
+</div>
+
+<script>
+  const addUserForm = document.getElementById('addUserForm');
+
+  const passwordInput = document.getElementById('addUserPassword');
+  const confirmPasswordInput = document.getElementById('confirmUserPassword');
+  const passwordMessage = document.getElementById('passwordMessage');
+
+  const togglePasswordBtn = document.getElementById('toggleAddUserPassword');
+  const passwordEyeIcon = document.getElementById('addUserEyeIcon');
+
+  const toggleConfirmBtn = document.getElementById('toggleConfirmUserPassword');
+  const confirmEyeIcon = document.getElementById('confirmUserEyeIcon');
+
+  const tipLength = document.getElementById('tip-length');
+  const tipUpper = document.getElementById('tip-upper');
+  const tipLower = document.getElementById('tip-lower');
+  const tipNumber = document.getElementById('tip-number');
+  const tipSpecial = document.getElementById('tip-special');
+  const tipSafe = document.getElementById('tip-safe');
+
+  function setTipStatus(element, isValid) {
+    const icon = element.querySelector('i');
+
+    if (isValid) {
+      element.classList.add('completed');
+      element.classList.remove('pending');
+      icon.className = 'bi bi-check-circle-fill';
+    } else {
+      element.classList.remove('completed');
+      element.classList.add('pending');
+      icon.className = 'bi bi-circle';
+    }
+  }
+
+  function validatePassword(password) {
+    const hasMinLength = password.length >= 6;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+    return hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+  }
+
+  function updatePasswordTips(password) {
+    const hasMinLength = password.length >= 6;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+    const lowerPass = password.toLowerCase();
+    const safePassword =
+      password.length > 0 &&
+      !lowerPass.includes('password') &&
+      !lowerPass.includes('123456') &&
+      !lowerPass.includes('admin') &&
+      !lowerPass.includes('qwerty') &&
+      !lowerPass.includes('name') &&
+      !lowerPass.includes('email');
+
+    setTipStatus(tipLength, hasMinLength);
+    setTipStatus(tipUpper, hasUppercase);
+    setTipStatus(tipLower, hasLowercase);
+    setTipStatus(tipNumber, hasNumber);
+    setTipStatus(tipSpecial, hasSpecial);
+    setTipStatus(tipSafe, safePassword);
+  }
+
+  function showMessage(message, type) {
+    passwordMessage.textContent = message;
+    passwordMessage.className = 'password-message mb-3 ' + type;
+  }
+
+  // Toggle password
+  togglePasswordBtn.addEventListener('click', function () {
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      passwordEyeIcon.className = 'bi bi-eye';
+    } else {
+      passwordInput.type = 'password';
+      passwordEyeIcon.className = 'bi bi-eye-slash';
+    }
+  });
+
+  // Toggle confirm password
+  toggleConfirmBtn.addEventListener('click', function () {
+    if (confirmPasswordInput.type === 'password') {
+      confirmPasswordInput.type = 'text';
+      confirmEyeIcon.className = 'bi bi-eye';
+    } else {
+      confirmPasswordInput.type = 'password';
+      confirmEyeIcon.className = 'bi bi-eye-slash';
+    }
+  });
+
+  // Live password tips
+  passwordInput.addEventListener('input', function () {
+    updatePasswordTips(passwordInput.value.trim());
+
+    if (confirmPasswordInput.value.trim() !== '') {
+      if (passwordInput.value.trim() === confirmPasswordInput.value.trim()) {
+        showMessage('Password matched successfully.', 'success');
+      } else {
+        showMessage('Password and Confirm Password do not match.', 'error');
+      }
+    } else {
+      passwordMessage.className = 'password-message mb-3';
+      passwordMessage.textContent = '';
+    }
+  });
+
+  // Live confirm password check
+  confirmPasswordInput.addEventListener('input', function () {
+    if (confirmPasswordInput.value.trim() === '') {
+      passwordMessage.className = 'password-message mb-3';
+      passwordMessage.textContent = '';
+      return;
+    }
+
+    if (passwordInput.value.trim() === confirmPasswordInput.value.trim()) {
+      showMessage('Password matched successfully.', 'success');
+    } else {
+      showMessage('Password and Confirm Password do not match.', 'error');
+    }
+  });
+
+  // Submit validation
+  addUserForm.addEventListener('submit', function (e) {
+    const password = passwordInput.value.trim();
+    const confirmPassword = confirmPasswordInput.value.trim();
+
+    if (!validatePassword(password)) {
+      e.preventDefault();
+      showMessage(
+        'Password must be at least 6 characters and include uppercase, lowercase, number, and special character.',
+        'error'
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      e.preventDefault();
+      showMessage('Password and Confirm Password do not match.', 'error');
+      return;
+    }
+
+    showMessage('Password looks good.', 'success');
+  });
+</script>
+
+{% endblock %}

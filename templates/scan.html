@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/scan.css') }}">
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+
+      {% if not zap_available %}
+      <div class="alert alert-warning" role="alert">
+        <h5 class="mb-2">
+          <i class="bi bi-exclamation-triangle-fill"></i> Scan Error
+        </h5>
+        <p class="mb-0">The scan is currently unavailable. Please try again later.</p>
+      </div>
+      {% endif %}
+
+      <div id="scanErrorBox" class="alert alert-danger d-none" role="alert">
+        <h5 class="mb-2">
+          <i class="bi bi-exclamation-triangle-fill"></i> Scan Error
+        </h5>
+        <p class="mb-0" id="scanErrorText"></p>
+      </div>
+
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+          <h4 class="mb-0">
+            <i class="bi bi-shield-lock"></i> Web Vulnerability Scan
+          </h4>
+        </div>
+
+        <div class="card-body">
+          <form id="scanForm" method="POST" action="{{ url_for('scan') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Target URL</label>
+              <input
+                type="url"
+                class="form-control"
+                name="target_url"
+                id="target_url"
+                placeholder="https://example.com"
+                required
+              >
+            </div>
+
+            <div class="border rounded p-3 bg-light mb-3">
+              <h6 class="fw-bold mb-2">Scan Details</h6>
+              <ul class="mb-0 small">
+                <li><strong>Scan Level:</strong> Full Comprehensive Scan</li>
+                <li><strong>Estimated Time:</strong> 20 – 50 minutes</li>
+                <li>
+                  <strong>Description:</strong><br>
+                  Performs a comprehensive vulnerability analysis including
+                  SQL Injection, XSS, authentication issues, security misconfiguration, and more.
+                </li>
+              </ul>
+            </div>
+
+            <div class="d-grid">
+              <button
+                type="submit"
+                class="btn btn-primary btn-lg"
+                id="startScanBtn"
+                {% if not zap_available %}disabled{% endif %}
+              >
+                <i class="bi bi-play-circle"></i> Start Scan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Scan Status Modal -->
+<div class="modal fade" id="scanningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="scanningModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white" id="scanModalHeader">
+        <h5 class="modal-title" id="scanningModalLabel">
+          <i class="bi bi-shield-lock"></i> Scan Status
+        </h5>
+      </div>
+      <div class="modal-body text-center py-4">
+        <div id="scanSpinner" class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+
+        <h5 id="scanStatus">Initializing...</h5>
+        <p class="text-muted mb-0" id="scanTarget"></p>
+        <p class="text-muted mt-3 small" id="scanProgress">Preparing scan...</p>
+
+        <div id="scanModalError" class="alert alert-danger mt-3 d-none"></div>
+
+        <button type="button" class="btn btn-secondary mt-3 d-none" id="closeScanModalBtn" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const csrfInput = document.querySelector('input[name="csrf_token"]');
+    const csrfToken = csrfInput ? csrfInput.value : '';
+
+    const scanForm = document.getElementById('scanForm');
+    const startScanBtn = document.getElementById('startScanBtn');
+    const scanErrorBox = document.getElementById('scanErrorBox');
+    const scanErrorText = document.getElementById('scanErrorText');
+
+    const modalElement = document.getElementById('scanningModal');
+    const scanStatus = document.getElementById('scanStatus');
+    const scanTarget = document.getElementById('scanTarget');
+    const scanProgress = document.getElementById('scanProgress');
+    const scanSpinner = document.getElementById('scanSpinner');
+    const scanModalError = document.getElementById('scanModalError');
+    const closeScanModalBtn = document.getElementById('closeScanModalBtn');
+    const scanModalHeader = document.getElementById('scanModalHeader');
+
+    let longScanNoticeTimeout = null;
+
+    function clearLongScanNoticeTimeout() {
+        if (longScanNoticeTimeout) {
+            clearTimeout(longScanNoticeTimeout);
+            longScanNoticeTimeout = null;
+        }
+    }
+
+    function showInlineError(message) {
+        scanErrorText.textContent = message;
+        scanErrorBox.classList.remove('d-none');
+        scanErrorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function hideInlineError() {
+        scanErrorText.textContent = '';
+        scanErrorBox.classList.add('d-none');
+    }
+
+    function resetModalStyle() {
+        scanSpinner.classList.remove('d-none');
+        scanModalError.classList.add('d-none');
+        scanModalError.textContent = '';
+        closeScanModalBtn.classList.add('d-none');
+
+        scanModalHeader.classList.remove('bg-danger', 'bg-success');
+        scanModalHeader.classList.add('bg-primary');
+
+        scanSpinner.classList.remove('text-danger', 'text-success');
+        scanSpinner.classList.add('text-primary');
+    }
+
+    function setModalError(message) {
+        scanSpinner.classList.add('d-none');
+        scanModalError.classList.remove('d-none');
+        scanModalError.textContent = message;
+        closeScanModalBtn.classList.remove('d-none');
+
+        scanModalHeader.classList.remove('bg-primary', 'bg-success');
+        scanModalHeader.classList.add('bg-danger');
+    }
+
+    function setModalSuccess() {
+        scanSpinner.classList.remove('d-none');
+        scanSpinner.classList.remove('text-primary', 'text-danger');
+        scanSpinner.classList.add('text-success');
+
+        scanModalHeader.classList.remove('bg-primary', 'bg-danger');
+        scanModalHeader.classList.add('bg-success');
+    }
+
+    function setModalStillRunning() {
+        scanSpinner.classList.remove('d-none');
+        scanSpinner.classList.remove('text-danger', 'text-success');
+        scanSpinner.classList.add('text-primary');
+
+        scanModalError.classList.add('d-none');
+        scanModalError.textContent = '';
+        closeScanModalBtn.classList.add('d-none');
+
+        scanModalHeader.classList.remove('bg-danger', 'bg-success');
+        scanModalHeader.classList.add('bg-primary');
+    }
+
+    function updateModal(statusText, progressText, targetText = '') {
+        scanStatus.textContent = statusText;
+        scanProgress.textContent = progressText;
+        scanTarget.textContent = targetText;
+    }
+
+    if (!scanForm) return;
+
+    scanForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        hideInlineError();
+        clearLongScanNoticeTimeout();
+
+        const targetUrl = document.getElementById('target_url').value.trim();
+
+        if (!targetUrl) {
+            showInlineError('Please enter a target URL.');
+            return;
+        }
+
+        if (typeof bootstrap === 'undefined') {
+            showInlineError('The page could not open the scan window. Please refresh and try again.');
+            return;
+        }
+
+        const modal = new bootstrap.Modal(modalElement);
+
+        try {
+            startScanBtn.disabled = true;
+            startScanBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Starting...';
+
+            resetModalStyle();
+            updateModal(
+                'Checking scanner...',
+                'Preparing to start the scan...',
+                `Target: ${targetUrl}`
+            );
+            modal.show();
+
+            const zapCheckResponse = await fetch('{{ url_for("check_zap") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            let zapCheckData = {};
+            try {
+                zapCheckData = await zapCheckResponse.json();
+            } catch (err) {
+                throw new Error('The scan could not be started. Please try again later.');
+            }
+
+            if (!zapCheckResponse.ok || !zapCheckData.success) {
+                const message = zapCheckData.message || 'The scan could not be started. Please try again later.';
+                updateModal('Scan Error', message, `Target: ${targetUrl}`);
+                setModalError(message);
+
+                startScanBtn.disabled = false;
+                startScanBtn.innerHTML = '<i class="bi bi-play-circle"></i> Start Scan';
+                showInlineError(message);
+                return;
+            }
+
+            resetModalStyle();
+            updateModal(
+                'Scan in Progress...',
+                'This may take 20-50 minutes depending on the target size.',
+                `Target: ${targetUrl}`
+            );
+
+            longScanNoticeTimeout = setTimeout(() => {
+                setModalStillRunning();
+                updateModal(
+                    'Scan is still running...',
+                    'The scan is taking longer than usual. Please wait...',
+                    `Target: ${targetUrl}`
+                );
+            }, 30 * 60 * 1000);
+
+            const response = await fetch('{{ url_for("execute_scan") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    target_url: targetUrl,
+                    mode: 'zap_real'
+                })
+            });
+
+            clearLongScanNoticeTimeout();
+
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (err) {
+                throw new Error('An error occurred while scanning. Please try again later.');
+            }
+
+            if (response.ok && data.success) {
+                setModalSuccess();
+                updateModal(
+                    'Scan Completed',
+                    'Report generated successfully. Redirecting...',
+                    `Target: ${targetUrl}`
+                );
+
+                setTimeout(() => {
+                    modal.hide();
+                    window.location.href = data.redirect_url;
+                }, 1500);
+            } else {
+                const message = data.error || 'An error occurred while scanning. Please try again later.';
+                updateModal('Scan Error', message, `Target: ${targetUrl}`);
+                setModalError(message);
+
+                startScanBtn.disabled = false;
+                startScanBtn.innerHTML = '<i class="bi bi-play-circle"></i> Start Scan';
+                showInlineError(message);
+            }
+
+        } catch (error) {
+            clearLongScanNoticeTimeout();
+            console.error('Scan error:', error);
+
+            const message = 'An error occurred while scanning. Please try again later.';
+
+            updateModal('Scan Error', message, `Target: ${targetUrl}`);
+            setModalError(message);
+
+            startScanBtn.disabled = false;
+            startScanBtn.innerHTML = '<i class="bi bi-play-circle"></i> Start Scan';
+            showInlineError(message);
+        }
+    });
+});
+</script>
+
+{% endblock %}
